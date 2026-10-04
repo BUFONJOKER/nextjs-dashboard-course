@@ -2,6 +2,21 @@
 
 A simple invoice dashboard built with Next.js, TypeScript, Tailwind CSS, and PostgreSQL.
 
+## Live Demo 🌐
+
+View the deployed application at [Acme Dashboard](https://nextjs-dashboard-course-liart.vercel.app/).
+
+## Demo Login 🔐
+
+This project does not include a signup flow. Use the following demo credentials to sign in:
+
+```text
+Email: user@nextmail.com
+Password: 123456
+```
+
+
+
 ## Features ✨
 
 - Dashboard with revenue and invoice information
@@ -24,17 +39,20 @@ Install the dependencies:
 pnpm install
 ```
 
-Create a `.env` file in the project root and add your database URL:
+### Set up the database
+
+This project uses PostgreSQL. Follow the official Next.js guide for creating and connecting a database:
+
+[Set up the database for the Next.js Dashboard](https://nextjs.org/learn/dashboard-app/setting-up-your-database)
+
+After creating the database, create a `.env` file in the project root. Add your own connection string and authentication secret:
 
 ```env
-POSTGRES_URL=your_postgres_connection_string
+POSTGRES_URL=your-postgres-connection-string
+AUTH_SECRET=generate-a-long-random-secret
 ```
 
-Seed the database by opening this URL in your browser after starting the app:
-
-```text
-http://localhost:3000/seed
-```
+Keep `.env` private. Do not commit database credentials or secret keys to Git.
 
 Start the development server:
 
@@ -42,7 +60,15 @@ Start the development server:
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+In a separate terminal, seed the database by opening this URL:
+
+```text
+http://localhost:3000/seed
+```
+
+After the seed request completes, open the dashboard:
+
+[http://localhost:3000](http://localhost:3000)
 
 ## Useful Commands 📌
 
@@ -58,6 +84,10 @@ pnpm start    # Start the production server
 - `/dashboard` - View dashboard information
 - `/dashboard/customers` - View customers
 - `/dashboard/invoices` - View and manage invoices
+
+## Certificate 🏆
+
+![Next.js App Router Fundamentals certificate](./public/next-js-app-router-fundamentals.png)
 
 ## Learn More 📚
 
