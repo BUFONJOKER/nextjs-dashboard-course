@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import {
 	fetchCardData,
@@ -13,6 +14,10 @@ import {
 	LatestInvoicesSkeleton,
 	RevenueChartSkeleton,
 } from "@/app/ui/skeletons";
+
+export const metadata: Metadata = {
+	title: "Dashboard",
+};
 
 export default async function Page() {
 	// const revenue = await fetchRevenue()
