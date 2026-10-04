@@ -15,9 +15,17 @@ const sql = postgres(databaseUrl, { ssl: "require" });
 
 const formSchema = z.object({
 	id: z.string(),
-	customer_id: z.string(),
-	amount: z.coerce.number(),
-	status: z.enum(["pending", "paid"]),
+	customer_id: z
+		.string({
+			invalid_type_error: "Please select a customer",
+		})
+		.min(1, { message: "Please select a customer" }),
+	amount: z.coerce
+		.number()
+		.gt(0, { message: "Please enter an amount greater than $0." }),
+	status: z.enum(["pending", "paid"], {
+		invalid_type_error: "Please select an invouice statuse",
+	}),
 	date: z.string(),
 });
 
@@ -26,28 +34,37 @@ const CreateInvoice = formSchema.omit({
 	date: true,
 });
 
-export async function createInvoice(formData: FormData) {
-	const { customer_id, amount, status } = CreateInvoice.parse({
+export type State = {
+	errors: {
+		customer_id?: string[];
+		amount?: string[];
+		status?: string[];
+	};
+	message: string;
+};
+
+export async function createInvoice(_prevState: State, formData: FormData) {
+	const validatedFields = CreateInvoice.safeParse({
 		customer_id: formData.get("customerId"),
 		amount: formData.get("amount"),
 		status: formData.get("status"),
 	});
 
-	const amountInCents = amount * 100;
-	const date = new Date().toISOString().split("T")[0];
-
-	try {
-		await sql`
-		INSERT INTO invoices (customer_id, amount, status, date)
-		VALUES (${customer_id}, ${amountInCents}, ${status}, ${date})
-	`;
-	} catch (error) {
-		console.log(error);
+	if (!validatedFields.success) {
 		return {
-			message: "Database error: Failed to create invoice",
+			errors: validatedFields.error.flatten().fieldErrors,
+			message: "Missing Fields. Failed to Create Invoice.",
 		};
 	}
 
+	const { customer_id, amount, status } = validatedFields.data;
+	const amountInCents = amount * 100;
+	const date = new Date().toISOString().split("T")[0];
+
+	await sql`
+		INSERT INTO invoices (customer_id, amount, status, date)
+		VALUES (${customer_id}, ${amountInCents}, ${status}, ${date})
+	`;
 	revalidatePath("/dashboard/invoices");
 	redirect("/dashboard/invoices");
 }
@@ -57,12 +74,25 @@ const UpdateInvoice = formSchema.omit({
 	date: true,
 });
 
-export async function updateInvoice(id: string, formData: FormData) {
-	const { customer_id, amount, status } = UpdateInvoice.parse({
+export async function updateInvoice(
+	id: string,
+	_prevState: State,
+	formData: FormData,
+) {
+	const validatedFields = UpdateInvoice.safeParse({
 		customer_id: formData.get("customerId"),
 		amount: formData.get("amount"),
 		status: formData.get("status"),
 	});
+
+	if (!validatedFields.success) {
+		return {
+			errors: validatedFields.error.flatten().fieldErrors,
+			message: "Missing Fields. Failed to Create Invoice.",
+		};
+	}
+
+	const { customer_id, amount, status } = validatedFields.data;
 
 	const amountInCents = amount * 100;
 
